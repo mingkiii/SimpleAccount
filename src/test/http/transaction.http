@@ -1,0 +1,22 @@
+### use blance
+POST http://localhost:8080/transaction/use
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "accountNumber": "1000000002",
+  "amount": 10000
+}
+
+### cancel blance
+POST http://localhost:8080/transaction/cancel
+Content-Type: application/json
+
+{
+  "transactionId": "e918b33a4ffe4a60a291177a9888bf1d",
+  "accountNumber": "1000000002",
+  "amount": 30000
+}
+
+### query transaction
+GET http://localhost:8080/transaction/6158fb6020f148269d9960824d2c27c7
