@@ -14,6 +14,7 @@ import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 import static com.example.account.type.AccountStatus.IN_USE;
@@ -35,11 +36,15 @@ public class AccountService {
         AccountUser accountUser = accountUserRepository.findById(userId)
                 .orElseThrow(() -> new AccountException(USER_NOT_FOUND));
 
-        validateCreateAccount(accountUser); // 정책 조건들을 메서드로 추출해서 구현
-
+        validateCreateAccount(accountUser);
+        /*        순차적인 계좌번호
         String newAccountNumber = accountRepository.findFirstByOrderByIdDesc()
-                .map(account -> (Integer.parseInt(account.getAccountNumber())) + 1 + "")
-                .orElse("1000000000");
+                  .map(account -> (Integer.parseInt(account.getAccountNumber())) + 1 + "")
+               .orElse("1000000000");
+ */
+
+        // 랜덤 계좌번호로 설정
+        String newAccountNumber = validateNewAccountNumber(generateRandomAccountNumber());
 
         return AccountDto.fromEntity(accountRepository.save(
                 Account.builder()
@@ -56,6 +61,27 @@ public class AccountService {
         if (accountRepository.countByAccountUser(accountUser) >= 10) {
             throw new AccountException(MAX_ACCOUNT_PER_USER_10);
         }
+    }
+    private String generateRandomAccountNumber() {
+        Random random = new Random();
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < 10; i++) {
+            if (sb.length() == 0) {
+                sb.append(random.nextInt(9) + 1);
+            } else {
+                sb.append(random.nextInt(10));
+            }
+        }
+
+        return sb.toString();
+    }
+
+    private String validateNewAccountNumber(String accountNumber) {
+        while (accountRepository.existsByAccountNumber(accountNumber)) {
+            accountNumber = generateRandomAccountNumber();
+        }
+        return accountNumber;
     }
 
     @Transactional

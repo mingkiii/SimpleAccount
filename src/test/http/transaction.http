@@ -4,8 +4,8 @@ Content-Type: application/json
 
 {
   "userId": 1,
-  "accountNumber": "1000000002",
-  "amount": 100
+  "accountNumber": "9709526468",
+  "amount": 1000
 }
 ### use blance2
 POST http://localhost:8080/transaction/use
@@ -13,7 +13,7 @@ Content-Type: application/json
 
 {
   "userId": 1,
-  "accountNumber": "1000000002",
+  "accountNumber": "9709526468",
   "amount": 100
 }
 
@@ -22,10 +22,10 @@ POST http://localhost:8080/transaction/cancel
 Content-Type: application/json
 
 {
-  "transactionId": "ab6747e0033f4caaae661c922401cb94",
-  "accountNumber": "1000000002",
+  "transactionId": "988e59110c4d483ba809161fed36cf3d",
+  "accountNumber": "9709526468",
   "amount": 100
 }
 
 ### query transaction
-GET http://localhost:8080/transaction/6158fb6020f148269d9960824d2c27c7
+GET http://localhost:8080/transaction/a626e3cee26447638ea3cf49cc09812d

@@ -38,61 +38,63 @@ class AccountServiceTest {
     @InjectMocks
     private AccountService accountService;
 
-    @Test
-    @DisplayName("계좌 생성 - 마지막 계좌번호에 +1인 계좌번호")
-    void createAccountSuccess() {
-        //given
-        AccountUser user = AccountUser.builder()
-                .name("Pobi").build();
-        user.setId(12L);
+//    @Test //순차적인 계좌번호 생성 시
+//    @DisplayName("계좌 생성 - 마지막 계좌번호에 +1인 계좌번호")
+//    void createAccountSuccess() {
+//        //given
+//        AccountUser user = AccountUser.builder()
+//                .name("Pobi").build();
+//        user.setId(12L);
+//
+//        given(accountUserRepository.findById(anyLong()))
+//                .willReturn(Optional.of(user));
+//        given(accountRepository.findFirstByOrderByIdDesc())
+//                .willReturn(Optional.of(Account.builder()
+//                        .accountNumber("1000000012").build()));  // 마지막 계좌번호
+//        given(accountRepository.save(any()))
+//                .willReturn(Account.builder()
+//                        .accountUser(user)
+//                        .accountNumber("1000000015").build());
+//        ArgumentCaptor<Account> captor = ArgumentCaptor.forClass(Account.class);
+//
+//        //when
+//        AccountDto accountDto = accountService.createAccount(1L, 1000L);
+//
+//        //then
+//        // captor로 마지막 계좌번호에 1을 더한 값으로 계좌번호가 생성된건지 캡쳐
+//        verify(accountRepository, times(1)).save(captor.capture());
+//        assertEquals(12L, accountDto.getUserId());
+//        assertEquals("1000000013", captor.getValue().getAccountNumber());
+//    }
 
-        given(accountUserRepository.findById(anyLong()))
+    @Test
+    @DisplayName("계좌 생성")
+    void createAccount() {
+        // given
+        AccountUser user = AccountUser.builder()
+                .name("Pobi")
+                .build();
+        user.setId(1L);
+
+        given(accountUserRepository.findById(1L))
                 .willReturn(Optional.of(user));
-        given(accountRepository.findFirstByOrderByIdDesc())
-                .willReturn(Optional.of(Account.builder()
-                        .accountNumber("1000000012").build()));  // 마지막 계좌번호
         given(accountRepository.save(any()))
-                .willReturn(Account.builder()
-                        .accountUser(user)
-                        .accountNumber("1000000015").build());
+                .willAnswer(invocation -> {
+                    Account savedAccount = invocation.getArgument(0);
+                    savedAccount.setAccountNumber("1234567890");
+                    return savedAccount;
+                });
         ArgumentCaptor<Account> captor = ArgumentCaptor.forClass(Account.class);
 
-        //when
+        // when
         AccountDto accountDto = accountService.createAccount(1L, 1000L);
 
-        //then
-        // captor로 마지막 계좌번호에 1을 더한 값으로 계좌번호가 생성된건지 캡쳐
+        // then
         verify(accountRepository, times(1)).save(captor.capture());
-        assertEquals(12L, accountDto.getUserId());
-        assertEquals("1000000013", captor.getValue().getAccountNumber());
+        assertEquals(1L, accountDto.getUserId());
+        assertEquals("1234567890", captor.getValue().getAccountNumber());
     }
 
-    @Test
-    @DisplayName("계좌 최초 생성")
-    void createFirstAccount() {
-        //given
-        AccountUser user = AccountUser.builder()
-                .name("Pobi").build();
-        user.setId(15L);
-
-        given(accountUserRepository.findById(anyLong()))
-                .willReturn(Optional.of(user));
-        given(accountRepository.findFirstByOrderByIdDesc())
-                .willReturn(Optional.empty());  // 계좌번호가 비어있는 상태
-        given(accountRepository.save(any()))
-                .willReturn(Account.builder()
-                        .accountUser(user)
-                        .accountNumber("1000000015").build());
-        ArgumentCaptor<Account> captor = ArgumentCaptor.forClass(Account.class);
-
-        //when
-        AccountDto accountDto = accountService.createAccount(1L, 1000L);
-
-        //then
-        verify(accountRepository, times(1)).save(captor.capture());
-        assertEquals(15L, accountDto.getUserId());
-        assertEquals("1000000000", captor.getValue().getAccountNumber());
-    }
 
     @Test
     @DisplayName("해당 유저 없음 - 계좌 생성 실패")
